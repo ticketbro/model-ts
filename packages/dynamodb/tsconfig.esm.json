@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "module": "ES2015",
+    "outDir": "./dist/esm"
+  },
+  "exclude": ["__test__", "test-utils"]
+}

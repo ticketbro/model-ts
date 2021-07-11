@@ -1,0 +1,30 @@
+{
+  "name": "@model-ts/core",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "Fabian Finke <finkef@icloud.com>",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [],
+  "peerDependencies": {
+    "fp-ts": "~2.6.5",
+    "io-ts": "^2.2.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.24",
+    "fp-ts": "~2.6.5",
+    "io-ts": "^2.2.4",
+    "jest": "^27.0.4",
+    "ts-jest": "^27.0.3",
+    "tslib": "^2.3.0",
+    "typescript": "~4.3.5"
+  },
+  "dependencies": {
+    "io-ts-reporters": "^1.2.2",
+    "typescript-memoize": "^1.0.1"
+  }
+}

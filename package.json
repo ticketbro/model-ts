@@ -1,0 +1,22 @@
+{
+  "name": "model-ts",
+  "repository": "git@github.com:finkef/model-ts.git",
+  "author": "Fabian Finke <finkef@icloud.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn tsc -b",
+    "clean": "yarn tsc -b --clean"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@changesets/cli": "^2.16.0",
+    "aws-sdk": "^2.691.0",
+    "fp-ts": "~2.6.5",
+    "io-ts": "^2.2.4",
+    "typescript": "~4.3.5"
+  }
+}
