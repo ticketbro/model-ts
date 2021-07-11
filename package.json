@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "build": "yarn tsc -b",
-    "clean": "yarn tsc -b --clean"
+    "clean": "yarn tsc -b --clean",
+    "release": "yarn build && yarn changeset publish"
   },
   "dependencies": {},
   "devDependencies": {

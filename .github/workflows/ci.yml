@@ -1,0 +1,47 @@
+name: CI
+on: [pull_request]
+jobs:
+  "test:core":
+    name: "test:core"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Set Node.js 12.x
+        uses: actions/setup-node@master
+        with:
+          node-version: 12.x
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Verify
+        run: yarn verify
+
+      - name: Test
+        run: yarn workspace @model-ts/core test
+
+  "test:dynamodb":
+    name: "test:dynamodb"
+    runs-on: ubuntu-latest
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - 8000:8000
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Set Node.js 12.x
+        uses: actions/setup-node@master
+        with:
+          node-version: 12.x
+
+      - name: Install Dependencies
+        run: yarn
+
+      - name: Verify
+        run: yarn verify
+
+      - name: Test
+        run: yarn workspace @model-ts/dynamodb test
