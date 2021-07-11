@@ -3,7 +3,11 @@
   "compilerOptions": {
     "rootDir": "./src",
     "module": "ES2015",
-    "outDir": "./dist/esm"
+    "outDir": "./dist/esm",
+    "paths": {
+      "@model-ts/core": ["../core"]
+    }
   },
+  "references": [{ "path": "../core/tsconfig.esm.json" }],
   "exclude": ["__test__", "test-utils"]
 }

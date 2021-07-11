@@ -1,11 +1,13 @@
 {
   "name": "@model-ts/dynamodb",
   "version": "0.1.0",
-  "main": "src/index.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "author": "Fabian Finke <finkef@icloud.com>",
   "license": "MIT",
   "scripts": {
     "build": "tsc -b",
+    "build:esm": "tsc -b tsconfig.esm.json",
     "test": "TZ=UTC LOCAL_ENDPOINT='http://localhost:8000' jest",
     "dynamodb:start": "docker run -d --name dynamodb --rm -p 8000:8000 amazon/dynamodb-local",
     "dynamodb:stop": "docker stop dynamodb"
