@@ -1,6 +1,6 @@
 {
   "name": "@model-ts/dynamodb",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "author": "Fabian Finke <finkef@icloud.com>",
@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "peerDependencies": {
-    "@model-ts/core": "^0.1.1",
+    "@model-ts/core": "^0.1.2",
     "aws-sdk": "^2.691.0",
     "fp-ts": "~2.6.5",
     "io-ts": "^2.2.4"
