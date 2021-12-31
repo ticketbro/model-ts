@@ -5,6 +5,15 @@
 
 > Extensible model framework for [io-ts](https://github.com/gcanti/io-ts).
 
+- [About](#about)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Composing models and io-ts codecs](#composing-models-and-io-ts-codecs)
+  - [Providers](#providers)
+    - [Enforcing Properties on models](#enforcing-properties-on-models)
+  - [Union Types](#union-types)
+- [License](#license)
+
 ## About
 
 When working with en-/decoding or parsing data in TypeScript, [io-ts](https://github.com/gcanti/io-ts) is arguably one of the best solutions available. This library aims at extending io-ts codecs with the power of OOP classes, adding the ability of defining class/instance methods and properties. In addition, it adds more ergonomic ways of instantiating and decoding types for when used in codebases that don't heavily rely on functional programming (and [fp-ts](https://github.com/gcanti/fp-ts)).

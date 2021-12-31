@@ -2,6 +2,20 @@
 
 > model-ts Provider for AWS DynamoDB.
 
+- [Installation](#installation)
+- [Usage](#usage)
+  - [API](#api)
+    - [load](#load)
+    - [get](#get)
+    - [put](#put)
+    - [update](#update)
+    - [updateRaw](#updateraw)
+    - [delete](#delete)
+    - [softDelete](#softdelete)
+    - [bulk](#bulk)
+- [Testing](#testing)
+- [License](#license)
+
 ## Installation
 
 ```sh
@@ -142,7 +156,7 @@ const item = await MyModel.load({ PK: "MYMODEL#123", SK: "SOMESK#ABC" })
 await item.softDelete()
 ```
 
-### bulk
+#### bulk
 
 > TODO
 
