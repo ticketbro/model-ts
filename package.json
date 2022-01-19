@@ -12,12 +12,16 @@
     "clean": "yarn tsc -b --clean",
     "release": "yarn build && yarn changeset publish"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@model-ts/core": "^0.1.2",
+    "tslib": "^2.3.1"
+  },
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
+    "@types/jest": "^27.4.0",
     "aws-sdk": "^2.691.0",
-    "fp-ts": "~2.6.5",
-    "io-ts": "^2.2.4",
+    "fp-ts": "^2.6.7",
+    "io-ts": "^2.2.16",
     "typescript": "~4.3.5"
   }
 }
