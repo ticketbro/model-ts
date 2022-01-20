@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/cjs",
+    "paths": {
+      "@model-ts/core": ["../core"]
+    }
+  },
+  "references": [{ "path": "../core" }],
+  "exclude": ["__test__", "test-utils"]
+}

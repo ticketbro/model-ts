@@ -1,0 +1,34 @@
+{
+  "name": "@model-ts/eventbridge",
+  "version": "0.1.2",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "author": "Fabian Finke <finkef@icloud.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -b",
+    "build:esm": "tsc -b tsconfig.esm.json",
+    "test": "TZ=UTC LOCAL_ENDPOINT='http://localhost:8000' jest"
+  },
+  "keywords": [],
+  "peerDependencies": {
+    "@model-ts/core": "^0.1.2",
+    "aws-sdk": "^2.691.0",
+    "fp-ts": "~2.6.5",
+    "io-ts": "^2.2.4"
+  },
+  "devDependencies": {
+    "@model-ts/core": "*",
+    "@types/jest": "^26.0.24",
+    "@types/uuid": "^8.3.0",
+    "aws-sdk": "^2.691.0",
+    "fp-ts": "~2.6.5",
+    "io-ts": "^2.2.4",
+    "jest": "^27.0.4",
+    "mockdate": "^3.0.5",
+    "prettier": "^2.2.1",
+    "ts-jest": "^27.1.3",
+    "typescript": "~4.3.5",
+    "uuid": "^8.3.2"
+  }
+}
