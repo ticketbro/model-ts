@@ -1,6 +1,6 @@
 import { ModelInstance, Provider } from '@model-ts/core'
 import EventBridge from 'aws-sdk/clients/eventbridge'
-import { InternalServerError } from './errors'
+import { PublishError } from './errors'
 
 export interface EventBridgeProvider extends Provider {
   instanceProps: {
@@ -25,7 +25,7 @@ export const getProvider = (client: EventBridge) => {
 
         const failed = result.FailedEntryCount || !result.Entries
         if (failed) {
-          throw new InternalServerError()
+          throw new PublishError()
         }
         return result.Entries
       },

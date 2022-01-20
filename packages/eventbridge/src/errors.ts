@@ -1,23 +1,9 @@
-export class InternalServerError extends Error {
+export class PublishError extends Error {
   readonly details: any
 
   constructor(details?: any) {
-    super("Internal Server Error")
-
+    super("An error occured on publishing events")
+    this.name = "PublishError"
     this.details = details
-  }
-
-  toAppSyncError() {
-    return {
-      type: "InternalServerError",
-      message: this.message,
-    }
-  }
-
-  toHttpError() {
-    return {
-      statusCode: 500,
-      body: this.message,
-    }
   }
 }
