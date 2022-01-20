@@ -12,10 +12,7 @@
     "clean": "yarn tsc -b --clean",
     "release": "yarn build && yarn changeset publish"
   },
-  "dependencies": {
-    "@model-ts/core": "^0.1.2",
-    "tslib": "^2.3.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
     "@types/jest": "^27.4.0",
