@@ -1,5 +1,11 @@
 # @model-ts/dynamodb
 
+## 0.2.0
+
+### Minor Changes
+
+- e3c2d39: add GSI4, GSI5 indices
+
 ## 0.1.2
 
 ### Patch Changes
