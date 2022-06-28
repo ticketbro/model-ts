@@ -62,6 +62,10 @@ export interface UpdateRawOperation<M extends DynamoDBModelConstructor<any>>
     GSI2SK?: string | null
     GSI3PK?: string | null
     GSI3SK?: string | null
+    GSI4PK?: string | null
+    GSI4SK?: string | null
+    GSI5PK?: string | null
+    GSI5SK?: string | null
   }
 }
 

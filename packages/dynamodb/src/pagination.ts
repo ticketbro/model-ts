@@ -35,9 +35,11 @@ const DEFAULT_OPTIONS = {
   default: 20,
 }
 
-export function decodePagination(
-  pagination: PaginationInput
-): { cursor?: string; limit: number; direction: PaginationDirection } {
+export function decodePagination(pagination: PaginationInput): {
+  cursor?: string
+  limit: number
+  direction: PaginationDirection
+} {
   const { after, before, first, last } = pagination
 
   if (before && after)
@@ -77,6 +79,10 @@ export const encodeDDBCursor = (
     GSI2SK,
     GSI3PK,
     GSI3SK,
+    GSI4PK,
+    GSI4SK,
+    GSI5PK,
+    GSI5SK,
   }: {
     PK: string
     SK: string
@@ -84,24 +90,52 @@ export const encodeDDBCursor = (
     GSI2SK?: string
     GSI3PK?: string
     GSI3SK?: string
+    GSI4PK?: string
+    GSI4SK?: string
+    GSI5PK?: string
+    GSI5SK?: string
   },
-  index?: "GSI2" | "GSI3"
+  index?: "GSI2" | "GSI3" | "GSI4" | "GSI5"
 ) =>
   index === "GSI2"
     ? Buffer.from(JSON.stringify({ PK, SK, GSI2PK, GSI2SK })).toString("base64")
     : index === "GSI3"
     ? Buffer.from(JSON.stringify({ PK, SK, GSI3PK, GSI3SK })).toString("base64")
+    : index === "GSI4"
+    ? Buffer.from(JSON.stringify({ PK, SK, GSI4PK, GSI4SK })).toString("base64")
+    : index === "GSI5"
+    ? Buffer.from(JSON.stringify({ PK, SK, GSI5PK, GSI5SK })).toString("base64")
     : Buffer.from(JSON.stringify({ PK, SK })).toString("base64")
 
 export const decodeDDBCursor = (encoded: string) => {
   try {
-    const { PK, SK, GSI2PK, GSI2SK, GSI3PK, GSI3SK } = JSON.parse(
-      Buffer.from(encoded, "base64").toString()
-    )
+    const {
+      PK,
+      SK,
+      GSI2PK,
+      GSI2SK,
+      GSI3PK,
+      GSI3SK,
+      GSI4PK,
+      GSI4SK,
+      GSI5PK,
+      GSI5SK,
+    } = JSON.parse(Buffer.from(encoded, "base64").toString())
 
     if (typeof PK !== "string" || typeof SK !== "string") throw new Error()
 
-    return { PK, SK, GSI2PK, GSI2SK, GSI3PK, GSI3SK }
+    return {
+      PK,
+      SK,
+      GSI2PK,
+      GSI2SK,
+      GSI3PK,
+      GSI3SK,
+      GSI4PK,
+      GSI4SK,
+      GSI5PK,
+      GSI5SK,
+    }
   } catch (error) {
     throw new PaginationError("Couldn't decode cursor")
   }

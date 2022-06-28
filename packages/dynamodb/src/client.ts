@@ -460,9 +460,9 @@ export class Client {
 
       for (const key in models) {
         try {
-          const decoded = ((models[
-            key
-          ] as any) as DynamoDBInternals<M>).__dynamoDBDecode(item)
+          const decoded = (
+            models[key] as any as DynamoDBInternals<M>
+          ).__dynamoDBDecode(item)
           grouped[key].push(decoded as any)
 
           // Early exit
@@ -661,11 +661,8 @@ export class Client {
     )
 
     if (E.isLeft(result)) {
-      const {
-        rollbackSuccessful,
-        transactionError,
-        rollbackFailure,
-      } = result.left
+      const { rollbackSuccessful, transactionError, rollbackFailure } =
+        result.left
 
       if (rollbackSuccessful) throw transactionError
       else throw new BulkWriteRollbackError(rollbackFailure)
@@ -854,6 +851,10 @@ export class Client {
       GSI2SK?: string
       GSI3PK?: string
       GSI3SK?: string
+      GSI4PK?: string
+      GSI4SK?: string
+      GSI5PK?: string
+      GSI5SK?: string
     }
   >(item: T): T {
     const prefix = "$$DELETED$$"
@@ -870,6 +871,10 @@ export class Client {
       GSI2SK: maybeWithPrefix(item.GSI2SK),
       GSI3PK: maybeWithPrefix(item.GSI3PK),
       GSI3SK: maybeWithPrefix(item.GSI3SK),
+      GSI4PK: maybeWithPrefix(item.GSI4PK),
+      GSI4SK: maybeWithPrefix(item.GSI4SK),
+      GSI5PK: maybeWithPrefix(item.GSI5PK),
+      GSI5SK: maybeWithPrefix(item.GSI5SK),
     }
   }
 }
