@@ -295,7 +295,7 @@ export const getProvider = (client: Client) => {
   ): DeleteOperation<ModelOf<T>>
   function instanceOperation<T extends DynamoDBModelInstance>(
     this: T,
-    operation: "softDelete",
+    operation: "softDelete"
   ): [
     {
       action: PutOperation<T, ModelOf<T>>
@@ -518,6 +518,10 @@ export const getProvider = (client: Client) => {
           GSI2SK: this.GSI2SK,
           GSI3PK: this.GSI3PK,
           GSI3SK: this.GSI3SK,
+          GSI4PK: this.GSI4PK,
+          GSI4SK: this.GSI4SK,
+          GSI5PK: this.GSI5PK,
+          GSI5SK: this.GSI5SK,
         }
       },
       put<T extends DynamoDBModelInstance>(
