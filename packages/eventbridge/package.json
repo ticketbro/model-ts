@@ -1,6 +1,6 @@
 {
   "name": "@model-ts/eventbridge",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "author": "Fabian Finke <finkef@icloud.com>",
