@@ -31,12 +31,12 @@ export class Client {
     for (const chunk of chunks) {
       const { Entries, FailedEntryCount } = await this.eventBridgeClient
         .putEvents({
-          Entries: chunk.map(event => ({
+          Entries: chunk.map((event) => ({
             EventBusName: this.eventBusName,
             Source: event.source,
             DetailType: event.detailType,
-            Detail: event.encode()
-          }))
+            Detail: JSON.stringify(event.encode()),
+          })),
         })
         .promise()
 
