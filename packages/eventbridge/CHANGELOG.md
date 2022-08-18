@@ -1,5 +1,11 @@
 # @model-ts/eventbridge
 
+## 0.2.2
+
+### Patch Changes
+
+- accb836: call event bus stub with individual events
+
 ## 0.2.1
 
 ### Patch Changes
