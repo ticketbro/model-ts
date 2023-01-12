@@ -1,5 +1,6 @@
 export * from "./model"
 export * from "./union"
+export * from "./nested"
 export * from "./decorators"
 export * from "./provider"
 export * from "./runtime-type-validation-error"
