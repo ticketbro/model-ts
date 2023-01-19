@@ -118,7 +118,7 @@ type UnknownFallback<T, F> = unknown extends T ? F : T
 
 type MergeProviders<T extends [Provider, ...Provider[]]> = T extends [Provider]
   ? T[0]
-  : T extends [infer Head, ...infer Tail]
+  : T extends [infer Head, ...(infer Tail)]
   ? Head extends Provider
     ? Tail extends [Provider, ...Provider[]]
       ? {
@@ -142,5 +142,12 @@ type MergeProviders<T extends [Provider, ...Provider[]]> = T extends [Provider]
 export function mergeProviders<T extends [Provider, ...Provider[]]>(
   providers: T
 ): MergeProviders<T> {
-  return Object.assign({}, ...providers)
+  return {
+    classProps: Object.assign({}, ...providers.map(p => p.classProps ?? {})),
+    instanceProps: Object.assign(
+      {},
+      ...providers.map(p => p.instanceProps ?? {})
+    ),
+    unionProps: Object.assign({}, ...providers.map(p => p.unionProps ?? {}))
+  } as MergeProviders<T>
 }
