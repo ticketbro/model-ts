@@ -1,5 +1,11 @@
 # @model-ts/core
 
+## 0.2.1
+
+### Patch Changes
+
+- 24bca88: fix mergeProviders overwriting previous providers
+
 ## 0.2.0
 
 ### Minor Changes
