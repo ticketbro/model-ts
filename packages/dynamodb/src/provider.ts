@@ -17,7 +17,7 @@ import {
 import { OutputOf, TypeOf, ModelOf } from "@model-ts/core"
 import { RaceConditionError } from "./errors"
 import { absurd } from "fp-ts/lib/function"
-import { PaginationInput } from "./pagination"
+import { encodeDDBCursor, PaginationInput } from "./pagination"
 
 export interface DynamoDBInternals<M extends Decodable> {
   __dynamoDBDecode(
@@ -524,6 +524,9 @@ export const getProvider = (client: Client) => {
           GSI5SK: this.GSI5SK,
         }
       },
+      cursor<T extends DynamoDBModelInstance>(this: T) {
+        return encodeDDBCursor(this.keys(), client.cursorEncryptionKey)
+      },
       put<T extends DynamoDBModelInstance>(
         this: T,
         params?: Omit<
@@ -621,7 +624,7 @@ export const getProvider = (client: Client) => {
         return client.get<M>({
           _model: this,
           _operation: "get",
-          key,
+          key: { PK: key.PK, SK: key.SK },
           ...params,
         })
       },

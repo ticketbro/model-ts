@@ -79,6 +79,12 @@ export interface ClientProps
     ServiceConfigurationOptions,
     ClientApiVersions {
   tableName: string
+
+  /**
+   * The encryption key used to encrypt cursors using AES-256-CTR.
+   * Must be a 32 character string, 256 bits.
+   */
+  cursorEncryptionKey?: Buffer
 }
 
 export interface Key {
@@ -90,9 +96,11 @@ export class Client {
   tableName: string
   documentClient: DocumentClient
   dataLoader: DataLoader<GetOperation<Decodable>, DynamoDBModelInstance, string>
+  cursorEncryptionKey?: Buffer
 
   constructor(props: ClientProps) {
     this.tableName = props?.tableName
+    this.cursorEncryptionKey = props?.cursorEncryptionKey
     this.documentClient = new DocumentClient(props)
     this.dataLoader = new DataLoader<
       GetOperation<Decodable>,
@@ -189,7 +197,7 @@ export class Client {
     const { Item } = await this.documentClient
       .get({
         TableName: this.tableName,
-        Key: key,
+        Key: { PK: key.PK, SK: key.SK },
         ...params,
       })
       .promise()
@@ -494,7 +502,16 @@ export class Client {
         ...params,
         // Fetch one additional item to test for a next page
         Limit: limit + 1,
-        ExclusiveStartKey: cursor ? decodeDDBCursor(cursor) : undefined,
+        ExclusiveStartKey: cursor
+          ? decodeDDBCursor(
+              cursor,
+              // GSI1 is the inverse index and uses PK and SK (switched around)
+              params.IndexName && params.IndexName !== "GSI1"
+                ? (params.IndexName as "GSI2" | "GSI3" | "GSI4" | "GSI5")
+                : undefined,
+              this.cursorEncryptionKey
+            )
+          : undefined,
         ScanIndexForward: direction === PaginationDirection.FORWARD,
       },
       { results: model }
@@ -509,13 +526,7 @@ export class Client {
     // Build edges
     const edges = slice.map((item: any) => ({
       node: item,
-      cursor: encodeDDBCursor(
-        item,
-        // GSI1 is the inverse index and uses PK and SK (switched around)
-        params.IndexName && params.IndexName !== "GSI1"
-          ? (params.IndexName as "GSI2" | "GSI3")
-          : undefined
-      ),
+      cursor: encodeDDBCursor(item, this.cursorEncryptionKey),
     }))
 
     return {
