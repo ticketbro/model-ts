@@ -1,5 +1,11 @@
 # @model-ts/dynamodb
 
+## 1.1.0
+
+### Minor Changes
+
+- f856f4c: add option to encrypt cursors using AES-SIV
+
 ## 1.0.0
 
 ### Patch Changes
