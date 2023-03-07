@@ -171,7 +171,7 @@ export function model<
           return Object.fromEntries(
             Object.entries(this).filter(([key]) => keys.has(key))
           )
-        },
+        }
       })
       Object.assign(this, provider?.instanceProps ?? {})
     }
@@ -222,7 +222,7 @@ export function model<
       this: M,
       value: unknown
     ): value is InstanceType<M> {
-      return value instanceof this
+      return value instanceof Model
     }
     static decode<T>(
       this: ModelConstructor<T>,
@@ -230,7 +230,7 @@ export function model<
     ): t.Validation<T> {
       return either.map(
         Model._codec.decode(value),
-        (decoded) => new this(decoded)
+        decoded => new this(decoded)
       )
     }
     static encode<M extends ModelConstructor>(
@@ -246,7 +246,7 @@ export function model<
     ): t.Validation<T> {
       return either.map(
         Model._codec.validate(value, context),
-        (decoded) => new this(decoded)
+        decoded => new this(decoded)
       )
     }
     static pipe<
@@ -270,7 +270,7 @@ export function model<
           }
           return ab.validate(e.right, c)
         },
-        (b) => this.encode(ab.encode(b) as any)
+        b => this.encode(ab.encode(b) as any)
       )
     }
     static asDecoder<T, M extends ModelConstructor<T>>(
