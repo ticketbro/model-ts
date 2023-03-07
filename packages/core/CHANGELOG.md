@@ -1,5 +1,11 @@
 # @model-ts/core
 
+## 0.2.2
+
+### Patch Changes
+
+- 509dafe: fix losing model context in nested codecs
+
 ## 0.2.1
 
 ### Patch Changes
