@@ -1,5 +1,11 @@
 # @model-ts/dynamodb
 
+## 1.2.0
+
+### Minor Changes
+
+- 4fd7913: add option to load soft-deleted items
+
 ## 1.1.0
 
 ### Minor Changes
