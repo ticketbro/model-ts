@@ -207,15 +207,45 @@ export class Client {
     return (_model as M & DynamoDBInternals<M>).__dynamoDBDecode(Item) as any
   }
 
-  async load<M extends Decodable, Null extends boolean = false>(
+  async load<
+    M extends Decodable,
+    Null extends boolean = false,
+    Recover extends boolean = false
+  >(
     operation: GetOperation<M>,
-    params?: { null?: Null }
+    params?: { null?: Null; recover?: Recover }
   ): Promise<
-    Null extends true ? DecodableInstance<M> | null : DecodableInstance<M>
+    Recover extends true
+      ? Null extends true
+        ? (DecodableInstance<M> & { isDeleted?: true }) | null
+        : DecodableInstance<M> & { isDeleted?: true }
+      : Null extends true
+      ? DecodableInstance<M> | null
+      : DecodableInstance<M>
   > {
     const item = await this.dataLoader.load(operation).catch((e) => {
       // Maybe return null instead of throwing
-      if (e instanceof ItemNotFoundError && params?.null) return null
+      if (e instanceof ItemNotFoundError) {
+        // Try to recover a deleted item
+        if (params?.recover)
+          return this.dataLoader
+            .load({
+              ...operation,
+              key: {
+                PK: `$$DELETED$$${operation.key.PK}`,
+                SK: `$$DELETED$$${operation.key.SK}`,
+              },
+            })
+            .then((item) => Object.assign(item, { isDeleted: true }))
+            .catch((e2) => {
+              if (e2 instanceof ItemNotFoundError && params.null) return null
+
+              // Throw the original error
+              throw e
+            })
+
+        if (params?.null) return null
+      }
 
       throw e
     })

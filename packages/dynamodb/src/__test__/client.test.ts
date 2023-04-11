@@ -8,7 +8,7 @@ import {
   ItemNotFoundError,
   ConditionalCheckFailedError,
   RaceConditionError,
-  BulkWriteTransactionError
+  BulkWriteTransactionError,
 } from "../errors"
 
 const client = new Client({ tableName: "table" })
@@ -16,7 +16,7 @@ const provider = getProvider(client)
 
 const SIMPLE_CODEC = t.type({
   foo: t.string,
-  bar: t.number
+  bar: t.number,
 })
 
 class Simple extends model("Simple", SIMPLE_CODEC, provider) {
@@ -331,7 +331,7 @@ describe("put", () => {
 
       await expect(
         MultiGSI.put(new MultiGSI({ foo: "yes", bar: 42 }), {
-          IgnoreExistence: true
+          IgnoreExistence: true,
         })
       ).resolves.toBeInstanceOf(MultiGSI)
     })
@@ -351,7 +351,7 @@ describe("get", () => {
 
       const result = await Simple.get({
         PK: item.keys().PK,
-        SK: item.keys().SK
+        SK: item.keys().SK,
       })
 
       expect(result.values()).toMatchInlineSnapshot(`
@@ -417,8 +417,8 @@ describe("delete", () => {
         _model: Simple,
         key: {
           PK: item.keys().PK,
-          SK: item.keys().SK
-        }
+          SK: item.keys().SK,
+        },
       })
 
       expect(result).toBeNull()
@@ -451,7 +451,7 @@ describe("delete", () => {
 
       const result = await Simple.delete({
         PK: item.keys().PK,
-        SK: item.keys().SK
+        SK: item.keys().SK,
       })
 
       expect(result).toBeNull()
@@ -826,7 +826,7 @@ describe("query", () => {
       await client.query(
         {
           KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
-          ExpressionAttributeValues: { ":pk": "abc", ":sk": "SORT" }
+          ExpressionAttributeValues: { ":pk": "abc", ":sk": "SORT" },
         },
         { a: A, b: B, union: Union }
       )
@@ -850,7 +850,7 @@ describe("query", () => {
       await client.query(
         {
           KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
-          ExpressionAttributeValues: { ":pk": "abc", ":sk": "SORT#" }
+          ExpressionAttributeValues: { ":pk": "abc", ":sk": "SORT#" },
         },
         { a: A, b: B, union: Union }
       )
@@ -886,7 +886,7 @@ describe("query", () => {
     const { a, b, union, _unknown, meta } = await client.query(
       {
         KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
-        ExpressionAttributeValues: { ":pk": "abc", ":sk": "SORT#" }
+        ExpressionAttributeValues: { ":pk": "abc", ":sk": "SORT#" },
       },
       { a: A, b: B, union: Union }
     )
@@ -894,9 +894,9 @@ describe("query", () => {
     expect({
       meta: meta,
       _unknown: _unknown,
-      a: a.map(item => item.values()),
-      b: b.map(item => item.values()),
-      union: union.map(item => item.values())
+      a: a.map((item) => item.values()),
+      b: b.map((item) => item.values()),
+      union: union.map((item) => item.values()),
     }).toMatchInlineSnapshot(`
       Object {
         "_unknown": Array [
@@ -959,7 +959,7 @@ describe("query", () => {
       {
         KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
         ExpressionAttributeValues: { ":pk": "abc", ":sk": "SORT#" },
-        Limit: 30
+        Limit: 30,
       },
       { a: A, b: B }
     )
@@ -974,7 +974,7 @@ describe("query", () => {
         KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
         ExpressionAttributeValues: { ":pk": "abc", ":sk": "SORT#" },
         Limit: 30,
-        ExclusiveStartKey: firstPage.meta.lastEvaluatedKey
+        ExclusiveStartKey: firstPage.meta.lastEvaluatedKey,
       },
       { a: A, b: B }
     )
@@ -1002,7 +1002,7 @@ describe("query", () => {
         ExpressionAttributeValues: { ":pk": "abc", ":sk": "SORT#" },
         FetchAllPages: true,
         // You wouldn't set a limit in a real-world use case here to optimize fetching all items.
-        Limit: 10
+        Limit: 10,
       },
       { a: A, b: B }
     )
@@ -1039,16 +1039,16 @@ describe("bulk", () => {
         new B({
           pk: "PK#UPDATE",
           sk: "SK#UPDATE",
-          b: "bar"
+          b: "bar",
         }).operation("update", { b: "baz" }),
         new B({
           pk: "PK#COND",
           sk: "SK#COND",
-          b: "cond"
+          b: "cond",
         }).operation("condition", {
           ConditionExpression: "b = :cond",
-          ExpressionAttributeValues: { ":cond": "cond" }
-        })
+          ExpressionAttributeValues: { ":cond": "cond" },
+        }),
       ])
 
       expect(await sandbox.diff(before)).toMatchInlineSnapshot(`
@@ -1168,7 +1168,7 @@ describe("bulk", () => {
             "updateRaw",
             { PK: "PK#nicetry", SK: "SK#nope" },
             { a: 234 }
-          )
+          ),
         ])
       ).rejects.toBeInstanceOf(BulkWriteTransactionError)
 
@@ -1196,11 +1196,11 @@ describe("bulk", () => {
         new B({
           pk: "PK#UPDATE",
           sk: "SK#UPDATE",
-          b: "bar"
+          b: "bar",
         }).operation("update", { b: "baz" }),
         ...Array.from({ length: 25 }).map((_, i) =>
           new A({ pk: `PK#A${i}`, sk: `SK#A${i}`, a: i }).operation("put")
-        )
+        ),
       ])
 
       //#region snapshot
@@ -1512,7 +1512,7 @@ describe("bulk", () => {
             "condition",
             { PK: "nicetry", SK: "nope" },
             { ConditionExpression: "attribute_exists(PK)" }
-          )
+          ),
         ])
       ).rejects.toBeInstanceOf(BulkWriteTransactionError)
 
@@ -1546,7 +1546,7 @@ describe("batchGet", () => {
         two: A.operation("get", { PK: "PK#2", SK: "SK#2" }),
         three: A.operation("get", { PK: "PK#3", SK: "SK#3" }),
         four: A.operation("get", { PK: "PK#4", SK: "SK#4" }),
-        duplicate: A.operation("get", { PK: "PK#1", SK: "SK#1" })
+        duplicate: A.operation("get", { PK: "PK#1", SK: "SK#1" }),
       })
     ).rejects.toBeInstanceOf(ItemNotFoundError)
   })
@@ -1563,7 +1563,7 @@ describe("batchGet", () => {
         two: A.operation("get", { PK: "PK#2", SK: "SK#2" }),
         duplicate: A.operation("get", { PK: "PK#1", SK: "SK#1" }),
         error: A.operation("get", { PK: "PK#error", SK: "SK#error" }),
-        error2: A.operation("get", { PK: "PK#error2", SK: "SK#error2" })
+        error2: A.operation("get", { PK: "PK#error2", SK: "SK#error2" }),
       },
       { individualErrors: true }
     )
@@ -1587,7 +1587,7 @@ describe("batchGet", () => {
       two: A.operation("get", { PK: "PK#2", SK: "SK#2" }),
       three: A.operation("get", { PK: "PK#3", SK: "SK#3" }),
       four: A.operation("get", { PK: "PK#4", SK: "SK#4" }),
-      duplicate: A.operation("get", { PK: "PK#1", SK: "SK#1" })
+      duplicate: A.operation("get", { PK: "PK#1", SK: "SK#1" }),
     })
 
     expect(
@@ -1637,6 +1637,41 @@ describe("load", () => {
     test("it returns null instead of throwing if item doesn't exist", async () => {
       await expect(
         client.load(A.operation("get", { PK: "PK", SK: "SK" }), { null: true })
+      ).resolves.toBeNull()
+    })
+
+    test("it recovers a soft deleted item", async () => {
+      const item = new A({ pk: "PK#1", sk: "SK#1", a: 1 })
+
+      await sandbox.seed(item)
+
+      await item.softDelete()
+
+      const recovered = await client.load(
+        A.operation("get", { PK: "PK#1", SK: "SK#1" }),
+        {
+          recover: true,
+        }
+      )
+
+      expect(recovered).toBeInstanceOf(A)
+      expect(recovered.isDeleted).toBe(true)
+    })
+
+    test("it throws if no item or soft deleted item exists", async () => {
+      await expect(
+        client.load(A.operation("get", { PK: "PK", SK: "SK" }), {
+          recover: true,
+        })
+      ).rejects.toBeInstanceOf(ItemNotFoundError)
+    })
+
+    test("it returns null instead of throwing if no item or soft deleted item exists", async () => {
+      await expect(
+        client.load(A.operation("get", { PK: "PK", SK: "SK" }), {
+          recover: true,
+          null: true,
+        })
       ).resolves.toBeNull()
     })
 
@@ -1730,8 +1765,8 @@ describe("load", () => {
       )
 
       expect(results.length).toBe(234)
-      expect(results.filter(item => item instanceof C).length).toBe(123)
-      expect(results.filter(item => item instanceof D).length).toBe(111)
+      expect(results.filter((item) => item instanceof C).length).toBe(123)
+      expect(results.filter((item) => item instanceof D).length).toBe(111)
       expect(spy).toHaveBeenCalledTimes(3)
 
       spy.mockReset()
@@ -1806,8 +1841,8 @@ describe("loadMany", () => {
       )
 
       expect(results.length).toBe(234)
-      expect(results.filter(item => item instanceof C).length).toBe(123)
-      expect(results.filter(item => item instanceof D).length).toBe(111)
+      expect(results.filter((item) => item instanceof C).length).toBe(123)
+      expect(results.filter((item) => item instanceof D).length).toBe(111)
       expect(spy).toHaveBeenCalledTimes(3)
 
       spy.mockReset()
@@ -1832,7 +1867,7 @@ describe("paginate", () => {
         {},
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page1.pageInfo).toMatchInlineSnapshot(`
@@ -1852,7 +1887,7 @@ describe("paginate", () => {
         { after: page1.pageInfo.endCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page2.pageInfo).toMatchInlineSnapshot(`
@@ -1872,7 +1907,7 @@ describe("paginate", () => {
         { after: page2.pageInfo.endCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page3.pageInfo).toMatchInlineSnapshot(`
@@ -1893,7 +1928,7 @@ describe("paginate", () => {
         { before: page3.pageInfo.startCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(backwardsPage2.pageInfo).toMatchInlineSnapshot(`
@@ -1913,7 +1948,7 @@ describe("paginate", () => {
         { before: backwardsPage2.pageInfo.startCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(backwardsPage1.pageInfo).toMatchInlineSnapshot(`
@@ -1944,7 +1979,7 @@ describe("paginate", () => {
         {},
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page1.pageInfo).toMatchInlineSnapshot(`
@@ -1964,7 +1999,7 @@ describe("paginate", () => {
         { after: page1.pageInfo.endCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page2.pageInfo).toMatchInlineSnapshot(`
@@ -1984,7 +2019,7 @@ describe("paginate", () => {
         { after: page2.pageInfo.endCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page3.pageInfo).toMatchInlineSnapshot(`
@@ -2005,7 +2040,7 @@ describe("paginate", () => {
         { before: page3.pageInfo.startCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(backwardsPage2.pageInfo).toMatchInlineSnapshot(`
@@ -2025,7 +2060,7 @@ describe("paginate", () => {
         { before: backwardsPage2.pageInfo.startCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(backwardsPage1.pageInfo).toMatchInlineSnapshot(`
@@ -2055,7 +2090,7 @@ describe("paginate", () => {
         { first: 10 },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page.pageInfo).toMatchInlineSnapshot(`
@@ -2085,7 +2120,7 @@ describe("paginate", () => {
         { first: 60 },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page1.pageInfo).toMatchInlineSnapshot(`
@@ -2116,7 +2151,7 @@ describe("paginate", () => {
         {},
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page1.pageInfo).toMatchInlineSnapshot(`
@@ -2135,7 +2170,7 @@ describe("paginate", () => {
         { after: page1.pageInfo.endCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page2.pageInfo).toMatchInlineSnapshot(`
@@ -2154,7 +2189,7 @@ describe("paginate", () => {
         { after: page2.pageInfo.endCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page3.pageInfo).toMatchInlineSnapshot(`
@@ -2174,7 +2209,7 @@ describe("paginate", () => {
         { before: page3.pageInfo.startCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(backwardsPage2.pageInfo).toMatchInlineSnapshot(`
@@ -2193,7 +2228,7 @@ describe("paginate", () => {
         { before: backwardsPage2.pageInfo.startCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(backwardsPage1.pageInfo).toMatchInlineSnapshot(`
@@ -2222,7 +2257,7 @@ describe("paginate", () => {
         { first: 10 },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page.pageInfo).toMatchInlineSnapshot(`
@@ -2251,7 +2286,7 @@ describe("paginate", () => {
         { first: 60 },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page1.pageInfo).toMatchInlineSnapshot(`
@@ -2283,7 +2318,7 @@ describe("paginate", () => {
         {},
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page1.pageInfo).toMatchInlineSnapshot(`
@@ -2302,7 +2337,7 @@ describe("paginate", () => {
         { after: page1.pageInfo.endCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page2.pageInfo).toMatchInlineSnapshot(`
@@ -2321,7 +2356,7 @@ describe("paginate", () => {
         { after: page2.pageInfo.endCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page3.pageInfo).toMatchInlineSnapshot(`
@@ -2341,7 +2376,7 @@ describe("paginate", () => {
         { before: page3.pageInfo.startCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(backwardsPage2.pageInfo).toMatchInlineSnapshot(`
@@ -2360,7 +2395,7 @@ describe("paginate", () => {
         { before: backwardsPage2.pageInfo.startCursor },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(backwardsPage1.pageInfo).toMatchInlineSnapshot(`
@@ -2390,7 +2425,7 @@ describe("paginate", () => {
         { first: 10 },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page.pageInfo).toMatchInlineSnapshot(`
@@ -2420,7 +2455,7 @@ describe("paginate", () => {
         { first: 60 },
         {
           KeyConditionExpression: "PK = :pk",
-          ExpressionAttributeValues: { ":pk": "PK" }
+          ExpressionAttributeValues: { ":pk": "PK" },
         }
       )
       expect(page1.pageInfo).toMatchInlineSnapshot(`
