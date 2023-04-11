@@ -417,22 +417,24 @@ export const getProvider = (client: Client) => {
 
       load<
         M extends DynamoDBModelConstructor<any>,
-        Null extends boolean = false
+        Null extends boolean = false,
+        Recover extends boolean = false
       >(
         this: M,
         key: Key,
         params?: Omit<GetOperation<M>, "_model" | "_operation" | "key"> & {
           null?: Null
+          recover?: Recover
         }
       ) {
-        return client.load<M, Null>(
+        return client.load<M, Null, Recover>(
           {
             _model: this,
             _operation: "get",
             key,
             ...params,
           },
-          { null: params?.null }
+          { null: params?.null, recover: params?.recover }
         )
       },
 
@@ -629,21 +631,26 @@ export const getProvider = (client: Client) => {
         })
       },
 
-      load<M extends DynamoDBUnion, Null extends boolean = false>(
+      load<
+        M extends DynamoDBUnion,
+        Null extends boolean = false,
+        Recover extends boolean = false
+      >(
         this: M,
         key: Key,
         params?: Omit<GetOperation<M>, "_model" | "_operation" | "key"> & {
           null?: Null
+          recover?: Recover
         }
       ) {
-        return client.load<M, Null>(
+        return client.load<M, Null, Recover>(
           {
             _model: this,
             _operation: "get",
             key,
             ...params,
           },
-          { null: params?.null }
+          { null: params?.null, recover: params?.recover }
         )
       },
 
