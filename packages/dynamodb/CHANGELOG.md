@@ -1,5 +1,11 @@
 # @model-ts/dynamodb
 
+## 1.2.1
+
+### Patch Changes
+
+- abb6c2e: fix: proxy recover flag to client implementation
+
 ## 1.2.0
 
 ### Minor Changes
