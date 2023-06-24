@@ -1,5 +1,11 @@
 # @model-ts/dynamodb
 
+## 1.3.0
+
+### Minor Changes
+
+- 01c64a7: replace uuid with crypto.randomBytes
+
 ## 1.2.1
 
 ### Patch Changes
