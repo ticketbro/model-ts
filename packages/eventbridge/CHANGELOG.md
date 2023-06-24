@@ -1,5 +1,11 @@
 # @model-ts/eventbridge
 
+## 1.0.1
+
+### Patch Changes
+
+- 40f26df: loosen publish type
+
 ## 1.0.0
 
 ### Patch Changes
