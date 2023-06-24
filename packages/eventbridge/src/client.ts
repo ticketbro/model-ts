@@ -15,12 +15,14 @@ export class Client {
     this.eventBusName = options.eventBusName
   }
 
-  async publish<
-    T extends ModelInstance<string, any> & {
-      source: string
-      detailType: string
-    }
-  >(...events: T[]) {
+  async publish(
+    ...events: Array<
+      ModelInstance<string, any> & {
+        source: string
+        detailType: string
+      }
+    >
+  ) {
     if (!events.length) return []
 
     const chunks = chunk(events, 10)
