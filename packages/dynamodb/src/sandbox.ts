@@ -1,6 +1,6 @@
+import crypto from "crypto"
 import { chunksOf } from "fp-ts/lib/Array"
 import DynamoDB from "aws-sdk/clients/dynamodb"
-import { v4 as uuid } from "uuid"
 import diff from "snapshot-diff"
 import { Client } from "./client"
 
@@ -19,7 +19,7 @@ const docClient = new DynamoDB.DocumentClient({
 })
 
 export const createTable = async () => {
-  const tableName = uuid()
+  const tableName = crypto.randomBytes(20).toString("hex")
 
   await ddb
     .createTable({
