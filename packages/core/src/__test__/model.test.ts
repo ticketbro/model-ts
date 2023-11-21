@@ -20,37 +20,9 @@ describe("without providers", () => {
       const decoded = MyModel.from({ foo: 42, bar: "omitted" })
       expect(decoded).toBeInstanceOf(MyModel)
       expect(decoded).toMatchInlineSnapshot(`
-        MyModel {
-          "_codec": ExactType {
-            "_tag": "ExactType",
-            "decode": [Function],
-            "encode": [Function],
-            "is": [Function],
-            "name": "{| foo: number |}",
-            "type": InterfaceType {
-              "_tag": "InterfaceType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{ foo: number }",
-              "props": Object {
-                "foo": NumberType {
-                  "_tag": "NumberType",
-                  "decode": [Function],
-                  "encode": [Function],
-                  "is": [Function],
-                  "name": "number",
-                  "validate": [Function],
-                },
-              },
-              "validate": [Function],
-            },
-            "validate": [Function],
-          },
+        Object {
           "_tag": "MyModel",
-          "encode": [Function],
           "foo": 42,
-          "values": [Function],
         }
       `)
     })
@@ -71,37 +43,9 @@ describe("without providers", () => {
       const decoded = new MyModel({ foo: 42 })
       expect(decoded).toBeInstanceOf(MyModel)
       expect(decoded).toMatchInlineSnapshot(`
-        MyModel {
-          "_codec": ExactType {
-            "_tag": "ExactType",
-            "decode": [Function],
-            "encode": [Function],
-            "is": [Function],
-            "name": "{| foo: number |}",
-            "type": InterfaceType {
-              "_tag": "InterfaceType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{ foo: number }",
-              "props": Object {
-                "foo": NumberType {
-                  "_tag": "NumberType",
-                  "decode": [Function],
-                  "encode": [Function],
-                  "is": [Function],
-                  "name": "number",
-                  "validate": [Function],
-                },
-              },
-              "validate": [Function],
-            },
-            "validate": [Function],
-          },
+        Object {
           "_tag": "MyModel",
-          "encode": [Function],
           "foo": 42,
-          "values": [Function],
         }
       `)
     })
@@ -120,14 +64,14 @@ describe("without providers", () => {
     test("it encodes a value", () => {
       expect(MyModel.from({ foo: 432 }).encode()).toEqual({
         foo: 432,
-        _tag: MyModel._tag,
+        _tag: MyModel._tag
       })
     })
 
     test("it omits extraneous fields", () => {
-      expect(new MyModel({ foo: 432, bar: "omitted" } as any).encode()).toEqual(
-        { foo: 432, _tag: MyModel._tag }
-      )
+      expect(
+        new MyModel({ foo: 432, bar: "omitted" } as any).encode()
+      ).toEqual({ foo: 432, _tag: MyModel._tag })
     })
   })
 })
@@ -141,7 +85,7 @@ describe("with provider", () => {
       constValue: 42,
       get doubleConstValue() {
         return this.constValue * 2
-      },
+      }
     },
     instanceProps: {
       getFooString<C extends { foo: number }>(this: C) {
@@ -150,8 +94,8 @@ describe("with provider", () => {
       num: 33,
       get tripleNum() {
         return this.num * 3
-      },
-    },
+      }
+    }
   }
 
   class MyModel extends model("MyModel", SIMPLE_CODEC, PROVIDER) {}
@@ -167,40 +111,9 @@ describe("with provider", () => {
       const decoded = MyModel.from({ foo: 42, bar: "omitted" })
       expect(decoded).toBeInstanceOf(MyModel)
       expect(decoded).toMatchInlineSnapshot(`
-        MyModel {
-          "_codec": ExactType {
-            "_tag": "ExactType",
-            "decode": [Function],
-            "encode": [Function],
-            "is": [Function],
-            "name": "{| foo: number |}",
-            "type": InterfaceType {
-              "_tag": "InterfaceType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{ foo: number }",
-              "props": Object {
-                "foo": NumberType {
-                  "_tag": "NumberType",
-                  "decode": [Function],
-                  "encode": [Function],
-                  "is": [Function],
-                  "name": "number",
-                  "validate": [Function],
-                },
-              },
-              "validate": [Function],
-            },
-            "validate": [Function],
-          },
+        Object {
           "_tag": "MyModel",
-          "encode": [Function],
           "foo": 42,
-          "getFooString": [Function],
-          "num": 33,
-          "tripleNum": 99,
-          "values": [Function],
         }
       `)
 
@@ -228,40 +141,9 @@ describe("with provider", () => {
       expect(decoded._tag).toEqual(MyModel._tag)
 
       expect(decoded).toMatchInlineSnapshot(`
-        MyModel {
-          "_codec": ExactType {
-            "_tag": "ExactType",
-            "decode": [Function],
-            "encode": [Function],
-            "is": [Function],
-            "name": "{| foo: number |}",
-            "type": InterfaceType {
-              "_tag": "InterfaceType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{ foo: number }",
-              "props": Object {
-                "foo": NumberType {
-                  "_tag": "NumberType",
-                  "decode": [Function],
-                  "encode": [Function],
-                  "is": [Function],
-                  "name": "number",
-                  "validate": [Function],
-                },
-              },
-              "validate": [Function],
-            },
-            "validate": [Function],
-          },
+        Object {
           "_tag": "MyModel",
-          "encode": [Function],
           "foo": 42,
-          "getFooString": [Function],
-          "num": 33,
-          "tripleNum": 99,
-          "values": [Function],
         }
       `)
 
@@ -284,14 +166,14 @@ describe("with provider", () => {
     test("it encodes a value", () => {
       expect(MyModel.from({ foo: 432 }).encode()).toEqual({
         foo: 432,
-        _tag: MyModel._tag,
+        _tag: MyModel._tag
       })
     })
 
     test("it omits extraneous fields", () => {
-      expect(new MyModel({ foo: 432, bar: "omitted" } as any).encode()).toEqual(
-        { foo: 432, _tag: MyModel._tag }
-      )
+      expect(
+        new MyModel({ foo: 432, bar: "omitted" } as any).encode()
+      ).toEqual({ foo: 432, _tag: MyModel._tag })
     })
   })
 
@@ -314,37 +196,9 @@ describe("as io-ts codec", () => {
       Object {
         "_tag": "Right",
         "right": Object {
-          "model": MyModel {
-            "_codec": ExactType {
-              "_tag": "ExactType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{| foo: number |}",
-              "type": InterfaceType {
-                "_tag": "InterfaceType",
-                "decode": [Function],
-                "encode": [Function],
-                "is": [Function],
-                "name": "{ foo: number }",
-                "props": Object {
-                  "foo": NumberType {
-                    "_tag": "NumberType",
-                    "decode": [Function],
-                    "encode": [Function],
-                    "is": [Function],
-                    "name": "number",
-                    "validate": [Function],
-                  },
-                },
-                "validate": [Function],
-              },
-              "validate": [Function],
-            },
+          "model": Object {
             "_tag": "MyModel",
-            "encode": [Function],
             "foo": 42,
-            "values": [Function],
           },
         },
       }
