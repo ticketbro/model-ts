@@ -1,5 +1,11 @@
 # @model-ts/core
 
+## 0.3.0
+
+### Minor Changes
+
+- 5d9cb44: prettify instance logging
+
 ## 0.2.2
 
 ### Patch Changes

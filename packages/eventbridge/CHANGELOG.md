@@ -1,5 +1,12 @@
 # @model-ts/eventbridge
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [5d9cb44]
+  - @model-ts/core@0.3.0
+
 ## 1.0.1
 
 ### Patch Changes
