@@ -18,74 +18,18 @@ describe("without providers", () => {
       const decodedA = Union.from({ a: "a" })
       expect(decodedA).toBeInstanceOf(A)
       expect(decodedA).toMatchInlineSnapshot(`
-        A {
-          "_codec": ExactType {
-            "_tag": "ExactType",
-            "decode": [Function],
-            "encode": [Function],
-            "is": [Function],
-            "name": "{| a: string |}",
-            "type": InterfaceType {
-              "_tag": "InterfaceType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{ a: string }",
-              "props": Object {
-                "a": StringType {
-                  "_tag": "StringType",
-                  "decode": [Function],
-                  "encode": [Function],
-                  "is": [Function],
-                  "name": "string",
-                  "validate": [Function],
-                },
-              },
-              "validate": [Function],
-            },
-            "validate": [Function],
-          },
+        Object {
           "_tag": "A",
           "a": "a",
-          "encode": [Function],
-          "values": [Function],
         }
       `)
 
       const decodedB = Union.from({ b: 42, c: "" })
       expect(decodedB).toBeInstanceOf(B)
       expect(decodedB).toMatchInlineSnapshot(`
-        B {
-          "_codec": ExactType {
-            "_tag": "ExactType",
-            "decode": [Function],
-            "encode": [Function],
-            "is": [Function],
-            "name": "{| b: number |}",
-            "type": InterfaceType {
-              "_tag": "InterfaceType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{ b: number }",
-              "props": Object {
-                "b": NumberType {
-                  "_tag": "NumberType",
-                  "decode": [Function],
-                  "encode": [Function],
-                  "is": [Function],
-                  "name": "number",
-                  "validate": [Function],
-                },
-              },
-              "validate": [Function],
-            },
-            "validate": [Function],
-          },
+        Object {
           "_tag": "B",
           "b": 42,
-          "encode": [Function],
-          "values": [Function],
         }
       `)
     })
@@ -106,74 +50,18 @@ describe("without providers", () => {
       const decodedA = Union.from({ _tag: "A", a: "a" })
       expect(decodedA).toBeInstanceOf(A)
       expect(decodedA).toMatchInlineSnapshot(`
-        A {
-          "_codec": ExactType {
-            "_tag": "ExactType",
-            "decode": [Function],
-            "encode": [Function],
-            "is": [Function],
-            "name": "{| a: string |}",
-            "type": InterfaceType {
-              "_tag": "InterfaceType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{ a: string }",
-              "props": Object {
-                "a": StringType {
-                  "_tag": "StringType",
-                  "decode": [Function],
-                  "encode": [Function],
-                  "is": [Function],
-                  "name": "string",
-                  "validate": [Function],
-                },
-              },
-              "validate": [Function],
-            },
-            "validate": [Function],
-          },
+        Object {
           "_tag": "A",
           "a": "a",
-          "encode": [Function],
-          "values": [Function],
         }
       `)
 
       const decodedB = Union.from({ _tag: "B", b: 42, c: "" })
       expect(decodedB).toBeInstanceOf(B)
       expect(decodedB).toMatchInlineSnapshot(`
-        B {
-          "_codec": ExactType {
-            "_tag": "ExactType",
-            "decode": [Function],
-            "encode": [Function],
-            "is": [Function],
-            "name": "{| b: number |}",
-            "type": InterfaceType {
-              "_tag": "InterfaceType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{ b: number }",
-              "props": Object {
-                "b": NumberType {
-                  "_tag": "NumberType",
-                  "decode": [Function],
-                  "encode": [Function],
-                  "is": [Function],
-                  "name": "number",
-                  "validate": [Function],
-                },
-              },
-              "validate": [Function],
-            },
-            "validate": [Function],
-          },
+        Object {
           "_tag": "B",
           "b": 42,
-          "encode": [Function],
-          "values": [Function],
         }
       `)
     })
@@ -203,8 +91,8 @@ describe("with provider", () => {
       constValue: 42,
       get doubleConstValue() {
         return this.constValue * 2
-      },
-    },
+      }
+    }
   }
 
   class A extends model("A", t.type({ a: t.string })) {}
@@ -230,37 +118,9 @@ describe("as io-ts codec", () => {
       Object {
         "_tag": "Right",
         "right": Object {
-          "union": B {
-            "_codec": ExactType {
-              "_tag": "ExactType",
-              "decode": [Function],
-              "encode": [Function],
-              "is": [Function],
-              "name": "{| b: number |}",
-              "type": InterfaceType {
-                "_tag": "InterfaceType",
-                "decode": [Function],
-                "encode": [Function],
-                "is": [Function],
-                "name": "{ b: number }",
-                "props": Object {
-                  "b": NumberType {
-                    "_tag": "NumberType",
-                    "decode": [Function],
-                    "encode": [Function],
-                    "is": [Function],
-                    "name": "number",
-                    "validate": [Function],
-                  },
-                },
-                "validate": [Function],
-              },
-              "validate": [Function],
-            },
+          "union": Object {
             "_tag": "B",
             "b": 42,
-            "encode": [Function],
-            "values": [Function],
           },
         },
       }

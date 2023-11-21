@@ -171,6 +171,12 @@ export function model<
           return Object.fromEntries(
             Object.entries(this).filter(([key]) => keys.has(key))
           )
+        },
+        toJSON(): t.TypeOf<C> {
+          return { _tag: this._tag, ...this.values() }
+        },
+        [Symbol.for("nodejs.util.inspect.custom")](): string {
+          return `${Model._tag} ${JSON.stringify(this.values(), null, 2)}`
         }
       })
       Object.assign(this, provider?.instanceProps ?? {})
