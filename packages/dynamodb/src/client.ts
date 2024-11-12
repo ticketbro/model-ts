@@ -1,4 +1,4 @@
-import { DynamoDBClient, DynamoDBClientConfig, TransactWriteItem, TransactWriteItemsOutput, ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb"
+import { DynamoDBClient, DynamoDBClientConfig, TransactWriteItem, TransactWriteItemsOutput, ConditionalCheckFailedException, TransactionCanceledException } from "@aws-sdk/client-dynamodb"
 import {
   DynamoDBDocumentClient,
   QueryCommandInput,
@@ -11,7 +11,6 @@ import {
   TransactWriteCommand,
 } from "@aws-sdk/lib-dynamodb"
 import { marshall} from "@aws-sdk/util-dynamodb"
-import { AWSError } from "aws-sdk/lib/error"
 import { pipe, absurd } from "fp-ts/lib/function"
 import * as A from "fp-ts/lib/Array"
 import * as E from "fp-ts/lib/Either"
@@ -805,8 +804,8 @@ export class Client {
               TransactItems: ops,
             })),
           (e) =>
-            (e as AWSError).code === "TransactionCanceledException"
-              ? new BulkWriteTransactionError(e as AWSError)
+            e instanceof TransactionCanceledException
+              ? new BulkWriteTransactionError(e)
               : (e as Error)
         ),
       // Retry only if there was a network error, etc.

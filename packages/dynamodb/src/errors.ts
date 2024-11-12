@@ -1,5 +1,5 @@
-import { AWSError } from "aws-sdk/lib/error"
 import { BulkOperation } from "./operations"
+import { TransactionCanceledException } from '@aws-sdk/client-dynamodb'
 
 // TODO: populate errors with more info
 
@@ -21,9 +21,9 @@ export class RaceConditionError extends Error {
 
 export class BulkWriteTransactionError extends Error {
   name = "BulkWriteTransactionError"
-  error: AWSError
+  error: TransactionCanceledException
 
-  constructor(error: AWSError) {
+  constructor(error: TransactionCanceledException) {
     super("An error occurred in one transaction during the bulk-write process.")
     this.error = error
   }
