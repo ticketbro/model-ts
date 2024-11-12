@@ -13,7 +13,6 @@
   "keywords": [],
   "peerDependencies": {
     "@model-ts/core": "^0.3.0",
-    "aws-sdk": "^2.691.0",
     "fp-ts": "^2.16.9",
     "io-ts": "^2.2.21"
   },
@@ -22,7 +21,6 @@
     "@model-ts/core": "*",
     "@types/jest": "^29.5.14",
     "@types/uuid": "^8.3.0",
-    "aws-sdk": "^2.691.0",
     "aws-sdk-client-mock": "^4.1.0",
     "aws-sdk-client-mock-jest": "^4.1.0",
     "fp-ts": "^2.16.9",

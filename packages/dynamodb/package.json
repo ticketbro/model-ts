@@ -15,7 +15,6 @@
   "keywords": [],
   "peerDependencies": {
     "@model-ts/core": "^0.3.0",
-    "aws-sdk": "^2.691.0",
     "fp-ts": "^2.16.9",
     "io-ts": "^2.2.21"
   },
@@ -25,7 +24,6 @@
     "@aws-sdk/util-dynamodb": "^3.687.0",
     "@model-ts/core": "*",
     "@types/jest": "^26.0.24",
-    "aws-sdk": "^2.691.0",
     "fp-ts": "^2.16.9",
     "io-ts": "^2.2.21",
     "jest": "^27.0.4",
