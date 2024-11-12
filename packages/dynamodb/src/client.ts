@@ -1,5 +1,16 @@
-import { DocumentClient, ClientApiVersions } from "aws-sdk/clients/dynamodb"
-import { ServiceConfigurationOptions } from "aws-sdk/lib/service"
+import { DynamoDBClient, DynamoDBClientConfig, TransactWriteItem, TransactWriteItemsOutput, ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb"
+import {
+  DynamoDBDocumentClient,
+  QueryCommandInput,
+  PutCommand,
+  GetCommand,
+  UpdateCommand,
+  DeleteCommand,
+  QueryCommand,
+  BatchGetCommand,
+  TransactWriteCommand,
+} from "@aws-sdk/lib-dynamodb"
+import { marshall} from "@aws-sdk/util-dynamodb"
 import { AWSError } from "aws-sdk/lib/error"
 import { pipe, absurd } from "fp-ts/lib/function"
 import * as A from "fp-ts/lib/Array"
@@ -42,12 +53,13 @@ import {
   PaginationInput,
   PaginationResult,
 } from "./pagination"
+import { DocumentClientKey } from './types'
 
 export type QueryParams = Omit<
-  DocumentClient.QueryInput,
+  QueryCommandInput,
   "TableName" | "KeyConditionExpression"
 > &
-  Required<Pick<DocumentClient.QueryInput, "KeyConditionExpression">> & {
+  Required<Pick<QueryCommandInput, "KeyConditionExpression">> & {
     FetchAllPages?: boolean
   }
 
@@ -55,7 +67,7 @@ export type QueryResponse<T extends { [name: string]: any }> = {
   [K in keyof T]: DecodableInstance<T[K]>[]
 } & {
   _unknown: unknown[]
-  meta: { lastEvaluatedKey?: DocumentClient.Key }
+  meta: { lastEvaluatedKey?: DocumentClientKey }
 }
 
 export type PaginationParams = Omit<
@@ -74,10 +86,7 @@ export interface BulkWriteState {
   rollbackFailure: BulkOperation<any, any>[]
 }
 
-export interface ClientProps
-  extends DocumentClient.DocumentClientOptions,
-    ServiceConfigurationOptions,
-    ClientApiVersions {
+export interface ClientProps extends DynamoDBClientConfig {
   tableName: string
 
   /**
@@ -87,21 +96,22 @@ export interface ClientProps
   cursorEncryptionKey?: Buffer
 }
 
-export interface Key {
+export interface Key extends DocumentClientKey {
   PK: string
   SK: string
 }
 
 export class Client {
   tableName: string
-  documentClient: DocumentClient
+  documentClient: DynamoDBDocumentClient
   dataLoader: DataLoader<GetOperation<Decodable>, DynamoDBModelInstance, string>
   cursorEncryptionKey?: Buffer
 
   constructor(props: ClientProps) {
     this.tableName = props?.tableName
     this.cursorEncryptionKey = props?.cursorEncryptionKey
-    this.documentClient = new DocumentClient(props)
+    const client = new DynamoDBClient(props)
+    this.documentClient = DynamoDBDocumentClient.from(client)
     this.dataLoader = new DataLoader<
       GetOperation<Decodable>,
       DynamoDBModelInstance,
@@ -142,7 +152,7 @@ export class Client {
    * Sets a new DocumentClient, intended to use in test setups.
    * @param docClient
    */
-  setDocumentClient(docClient: DocumentClient) {
+  setDocumentClient(docClient: DynamoDBClient) {
     this.documentClient = docClient
   }
 
@@ -161,8 +171,8 @@ export class Client {
         item
       )
 
-      await this.documentClient
-        .put({
+      await this.documentClient.send(
+        new PutCommand({
           TableName: this.tableName,
           // Maybe add deletion prefix if this is part of a soft-delete
           Item: _deleted ? this.applySoftDeletionFields(encoded) : encoded,
@@ -171,7 +181,7 @@ export class Client {
             : "attribute_not_exists(PK)",
           ...params,
         })
-        .promise()
+      )
 
       // @ts-ignore
       item._docVersion = encoded._docVersion
@@ -179,9 +189,10 @@ export class Client {
       return item
     } catch (error) {
       if (
-        error.code === "ConditionalCheckFailedException" &&
+        error instanceof ConditionalCheckFailedException &&
         !params?.ConditionExpression
       ) {
+        
         throw new KeyExistsError()
       }
 
@@ -194,13 +205,13 @@ export class Client {
     key,
     ...params
   }: GetOperation<M>): Promise<DecodableInstance<M>> {
-    const { Item } = await this.documentClient
-      .get({
+    const { Item } = await this.documentClient.send(
+      new GetCommand({
         TableName: this.tableName,
         Key: { PK: key.PK, SK: key.SK },
         ...params,
       })
-      .promise()
+    )
 
     if (!Item) throw new ItemNotFoundError()
 
@@ -272,8 +283,8 @@ export class Client {
     } = this.buildUpdateExpression(operation)
 
     try {
-      const { Attributes } = await this.documentClient
-        .update({
+      const { Attributes } = await this.documentClient.send(
+        new UpdateCommand({
           TableName: this.tableName,
           Key: key,
           ReturnValues: "ALL_NEW",
@@ -292,11 +303,11 @@ export class Client {
               ? ExpressionAttributeValues
               : undefined,
         })
-        .promise()
+      )
 
       return (_model as M & DynamoDBInternals<M>).__dynamoDBDecode(Attributes)
     } catch (error) {
-      if (error.code === "ConditionalCheckFailedException") {
+      if (error instanceof ConditionalCheckFailedException) {
         if (params.ConditionExpression) throw new ConditionalCheckFailedError()
         else throw new ItemNotFoundError()
       }
@@ -425,12 +436,12 @@ export class Client {
   async delete<M extends DynamoDBModelConstructor<any>>({
     key,
   }: DeleteOperation<M>): Promise<null> {
-    await this.documentClient
-      .delete({
+    await this.documentClient.send(
+      new DeleteCommand({
         TableName: this.tableName,
         Key: key,
       })
-      .promise()
+    )
 
     return null
   }
@@ -458,16 +469,16 @@ export class Client {
     models: R
   ): Promise<QueryResponse<R>> {
     const query = async (
-      ExclusiveStartKey?: DocumentClient.Key
-    ): Promise<{ Items: unknown[]; LastEvaluatedKey?: DocumentClient.Key }> => {
-      const { Items, LastEvaluatedKey } = await this.documentClient
-        .query({
+      ExclusiveStartKey?: DocumentClientKey
+    ): Promise<{ Items: unknown[]; LastEvaluatedKey?: DocumentClientKey }> => {
+      const { Items, LastEvaluatedKey } = await this.documentClient.send(
+        new QueryCommand({
           TableName: this.tableName,
           FilterExpression: "attribute_not_exists(dynamotorLegacy)",
           ExclusiveStartKey,
           ...params,
         })
-        .promise()
+      )
 
       if (LastEvaluatedKey && FetchAllPages) {
         // Recursively fetch next page
@@ -622,8 +633,8 @@ export class Client {
     const fetchBatch = async (
       keys: Array<{ PK: string; SK: string }>
     ): Promise<Array<{ PK: string; SK: string; [key: string]: unknown }>> => {
-      const { Responses, UnprocessedKeys } = await this.documentClient
-        .batchGet({
+      const { Responses, UnprocessedKeys } = await this.documentClient.send(
+        new BatchGetCommand({
           RequestItems: {
             [this.tableName]: {
               Keys: keys,
@@ -631,7 +642,7 @@ export class Client {
             },
           },
         })
-        .promise()
+      )
 
       const responses =
         (Responses?.[this.tableName] as Array<{
@@ -753,7 +764,7 @@ export class Client {
         ...state,
         successful: [...state.successful, ...currentBatch],
       })
-    } catch (error) {
+    } catch (error: any) {
       // Already in rollback, but failed again. Terminate.
       if (state.inRollback)
         return E.left({
@@ -778,8 +789,8 @@ export class Client {
   }
 
   private async transactWrite(
-    ops: DocumentClient.TransactWriteItem[]
-  ): Promise<DocumentClient.TransactWriteItemsOutput> {
+    ops: TransactWriteItem[]
+  ): Promise<TransactWriteItemsOutput> {
     const retryPolicy = monoidRetryPolicy.concat(
       constantDelay(50),
       limitRetries(3)
@@ -790,11 +801,9 @@ export class Client {
       () =>
         TE.tryCatch(
           () =>
-            this.documentClient
-              .transactWrite({
-                TransactItems: ops,
-              })
-              .promise(),
+            this.documentClient.send(new TransactWriteCommand({
+              TransactItems: ops,
+            })),
           (e) =>
             (e as AWSError).code === "TransactionCanceledException"
               ? new BulkWriteTransactionError(e as AWSError)
@@ -816,7 +825,7 @@ export class Client {
     M extends DynamoDBModelConstructor<T>
   >(
     operation: Operation<T, M> | ConditionCheckOperation
-  ): DocumentClient.TransactWriteItem => {
+  ): TransactWriteItem => {
     switch (operation._operation) {
       case "put": {
         const { _model, _deleted, item, IgnoreExistence, ...params } = operation
@@ -871,11 +880,12 @@ export class Client {
           },
         }
       case "condition":
-        const { key, _operation, ...rest } = operation
+        const { key, _operation, ExpressionAttributeValues, ...rest } = operation
         return {
           ConditionCheck: {
             TableName: this.tableName,
             Key: key,
+            ExpressionAttributeValues: ExpressionAttributeValues ? marshall(ExpressionAttributeValues) : undefined,
             ...rest,
           },
         }
