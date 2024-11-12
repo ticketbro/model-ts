@@ -16,7 +16,7 @@ jobs:
         run: yarn
 
       - name: Verify
-        run: yarn verify
+        run: yarn install --check-files
 
       - name: Test
         run: yarn workspace @model-ts/core test
