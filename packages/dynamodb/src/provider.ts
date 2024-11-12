@@ -18,6 +18,7 @@ import { OutputOf, TypeOf, ModelOf } from "@model-ts/core"
 import { RaceConditionError } from "./errors"
 import { absurd } from "fp-ts/lib/function"
 import { encodeDDBCursor, PaginationInput } from "./pagination"
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb'
 
 export interface DynamoDBInternals<M extends Decodable> {
   __dynamoDBDecode(
@@ -557,7 +558,7 @@ export const getProvider = (client: Client) => {
           try {
             return await client.put(op)
           } catch (error) {
-            if (error.code === "ConditionalCheckFailedException")
+            if (error instanceof ConditionalCheckFailedException)
               throw new RaceConditionError(
                 "The instance you are attempting to update is out of sync with the stored value."
               )

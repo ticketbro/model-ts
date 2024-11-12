@@ -1,4 +1,9 @@
-import { DocumentClient } from "aws-sdk/clients/dynamodb"
+import {
+  GetCommandInput,
+  PutCommandInput,
+  UpdateCommandInput,
+  NativeAttributeValue
+} from "@aws-sdk/lib-dynamodb"
 import { TypeOf } from "@model-ts/core"
 import {
   DynamoDBModelInstance,
@@ -6,6 +11,9 @@ import {
   Decodable,
 } from "./dynamodb-model"
 import { Key } from "./client"
+import {
+  ConditionCheck,
+} from "@aws-sdk/client-dynamodb"
 
 export type Operation<
   T extends DynamoDBModelInstance,
@@ -18,7 +26,7 @@ export type Operation<
   | ConditionCheckOperation
 
 export interface GetOperation<M extends Decodable>
-  extends Pick<DocumentClient.GetItemInput, "ConsistentRead"> {
+  extends Pick<GetCommandInput, "ConsistentRead"> {
   _operation: "get"
   _model: M
   key: Key
@@ -28,7 +36,7 @@ export interface PutOperation<
   T extends DynamoDBModelInstance,
   M extends DynamoDBModelConstructor<T>
 > extends Pick<
-    DocumentClient.PutItemInput,
+    PutCommandInput,
     | "ConditionExpression"
     | "ExpressionAttributeValues"
     | "ExpressionAttributeNames"
@@ -48,7 +56,7 @@ export interface DeleteOperation<M extends DynamoDBModelConstructor<any>> {
 
 export interface UpdateRawOperation<M extends DynamoDBModelConstructor<any>>
   extends Pick<
-    DocumentClient.UpdateItemInput,
+    UpdateCommandInput,
     | "UpdateExpression"
     | "ConditionExpression"
     | "ExpressionAttributeNames"
@@ -75,13 +83,13 @@ export interface UpdateRawOperation<M extends DynamoDBModelConstructor<any>>
 
 export interface ConditionCheckOperation
   extends Pick<
-    DocumentClient.ConditionCheck,
+    ConditionCheck,
     | "ConditionExpression"
     | "ExpressionAttributeNames"
-    | "ExpressionAttributeValues"
   > {
   _operation: "condition"
   key: Key
+  ExpressionAttributeValues?: Record<string, NativeAttributeValue>;
 }
 
 export interface TransactionOperation<

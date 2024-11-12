@@ -1,14 +1,19 @@
 import * as t from "io-ts"
 import { model } from "@model-ts/core"
 import { EventBridgeProvider, getProvider } from "../provider"
-import EventBridge from "aws-sdk/clients/eventbridge"
+import {
+  EventBridgeClient,
+  PutEventsCommand,
+} from "@aws-sdk/client-eventbridge"
 import { Client } from "../client"
+import { mockClient } from "aws-sdk-client-mock"
+import "aws-sdk-client-mock-jest"
 
-jest.mock("aws-sdk/clients/eventbridge")
+const mockEventBridgeClient = mockClient(EventBridgeClient)
 
 const EVENT_BUS_NAME = "any-event-bus"
 
-const makeSut = (eventBridgeClient: EventBridge): EventBridgeProvider => {
+const makeSut = (eventBridgeClient: EventBridgeClient): EventBridgeProvider => {
   const client = new Client({ eventBusName: EVENT_BUS_NAME })
 
   client.eventBridgeClient = eventBridgeClient
@@ -36,13 +41,11 @@ const mockEvent = (provider: EventBridgeProvider) => {
 }
 
 it("should call provider.publish()", async () => {
-  const client = new EventBridge()
-  client.putEvents = jest.fn().mockImplementationOnce(() => ({
-    promise: () =>
-      Promise.resolve({
-        Entries: [],
-      }),
-  }))
+  const client = new EventBridgeClient()
+  mockEventBridgeClient.on(PutEventsCommand).resolvesOnce({
+    Entries: [],
+  })
+
   const provider = makeSut(client)
   provider.instanceProps.publish = jest.fn()
   const { event } = mockEvent(provider)
@@ -51,73 +54,52 @@ it("should call provider.publish()", async () => {
 })
 
 it("should call eventBridge.putEvents() with correct values", async () => {
-  const client = new EventBridge()
+  const client = new EventBridgeClient()
   const { event } = mockEvent(makeSut(client))
-  client.putEvents = jest.fn().mockImplementationOnce(() => ({
-    promise: () =>
-      Promise.resolve({
-        Entries: [],
-      }),
-  }))
+  mockEventBridgeClient.on(PutEventsCommand).resolvesOnce({
+    Entries: [],
+  })
   await event.publish()
-  expect(client.putEvents).toHaveBeenCalledWith({
+  expect(mockEventBridgeClient).toHaveReceivedCommand(PutEventsCommand)
+  expect(mockEventBridgeClient).toHaveReceivedCommandTimes(PutEventsCommand, 1)
+  expect(mockEventBridgeClient).toHaveReceivedCommandWith(PutEventsCommand, {
     Entries: [
       {
         EventBusName: EVENT_BUS_NAME,
         Source: event.source,
         DetailType: event.detailType,
-        Detail: event.encode(),
+        Detail: JSON.stringify(event.encode()),
       },
     ],
   })
 })
 
 it("should succeed if no results", async () => {
-  const client = new EventBridge()
-  client.putEvents = jest.fn().mockImplementationOnce(() => ({
-    promise: () => Promise.resolve({}),
-  }))
+  const client = new EventBridgeClient()
   const { event } = mockEvent(makeSut(client))
+  mockEventBridgeClient.on(PutEventsCommand).resolvesOnce({ Entries: [] })
   const promise = event.publish()
   await expect(promise).resolves.toEqual([])
 })
 
 it("should throw if FailedEntryCount > 0", async () => {
-  const client = new EventBridge()
-  client.putEvents = jest.fn().mockImplementationOnce(() => ({
-    promise: () =>
-      Promise.resolve({
-        FailedEntryCount: 1,
-      }),
-  }))
+  const client = new EventBridgeClient()
+  mockEventBridgeClient.on(PutEventsCommand).rejects({})
   const { event } = mockEvent(makeSut(client))
   const promise = event.publish()
   await expect(promise).rejects.toThrow()
 })
 
 it("should return Entries", async () => {
-  const client = new EventBridge()
+  const client = new EventBridgeClient()
   const { event } = mockEvent(makeSut(client))
-  client.putEvents = jest.fn().mockImplementationOnce(() => ({
-    promise: () =>
-      Promise.resolve({
-        Entries: [
-          {
-            EventBusName: EVENT_BUS_NAME,
-            Source: "core",
-            DetailType: "core.user.created",
-            Detail: event.encode(),
-          },
-        ],
-      }),
-  }))
+  mockEventBridgeClient
+    .on(PutEventsCommand)
+    .resolves({ Entries: [{ EventId: "MOCK-ID" }] })
   const results = await event.publish()
   expect(results).toEqual([
     {
-      EventBusName: EVENT_BUS_NAME,
-      Source: "core",
-      DetailType: "core.user.created",
-      Detail: event.encode(),
+      EventId: "MOCK-ID",
     },
   ])
 })

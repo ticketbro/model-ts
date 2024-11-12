@@ -15,16 +15,17 @@
   "keywords": [],
   "peerDependencies": {
     "@model-ts/core": "^0.3.0",
-    "aws-sdk": "^2.691.0",
-    "fp-ts": "~2.6.5",
-    "io-ts": "^2.2.4"
+    "fp-ts": "^2.16.9",
+    "io-ts": "^2.2.21"
   },
   "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.687.0",
+    "@aws-sdk/lib-dynamodb": "^3.687.0",
+    "@aws-sdk/util-dynamodb": "^3.687.0",
     "@model-ts/core": "*",
     "@types/jest": "^26.0.24",
-    "aws-sdk": "^2.691.0",
-    "fp-ts": "~2.6.5",
-    "io-ts": "^2.2.4",
+    "fp-ts": "^2.16.9",
+    "io-ts": "^2.2.21",
     "jest": "^27.0.4",
     "mockdate": "^3.0.5",
     "prettier": "^2.2.1",

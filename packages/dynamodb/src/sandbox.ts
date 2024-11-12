@@ -1,100 +1,104 @@
 import crypto from "crypto"
 import { chunksOf } from "fp-ts/lib/Array"
-import DynamoDB from "aws-sdk/clients/dynamodb"
+import {
+  CreateTableCommand,
+  DeleteTableCommand,
+  DynamoDBClient,
+} from "@aws-sdk/client-dynamodb"
 import diff from "snapshot-diff"
 import { Client } from "./client"
+import {
+  BatchWriteCommand,
+  GetCommand,
+  DynamoDBDocumentClient,
+  ScanCommand,
+} from "@aws-sdk/lib-dynamodb"
 
-const ddb = new DynamoDB({
-  accessKeyId: "xxx",
-  secretAccessKey: "xxx",
+const ddb = new DynamoDBClient({
   endpoint: process.env.LOCAL_ENDPOINT,
   region: "local",
 })
 
-const docClient = new DynamoDB.DocumentClient({
-  accessKeyId: "xxx",
-  secretAccessKey: "xxx",
-  endpoint: process.env.LOCAL_ENDPOINT,
-  region: "local",
-})
+const docClient = DynamoDBDocumentClient.from(ddb)
 
 export const createTable = async () => {
   const tableName = crypto.randomBytes(20).toString("hex")
 
   await ddb
-    .createTable({
-      TableName: tableName,
-      AttributeDefinitions: [
-        { AttributeName: "PK", AttributeType: "S" },
-        { AttributeName: "SK", AttributeType: "S" },
-        { AttributeName: "GSI2PK", AttributeType: "S" },
-        { AttributeName: "GSI2SK", AttributeType: "S" },
-        { AttributeName: "GSI3PK", AttributeType: "S" },
-        { AttributeName: "GSI3SK", AttributeType: "S" },
-        { AttributeName: "GSI4PK", AttributeType: "S" },
-        { AttributeName: "GSI4SK", AttributeType: "S" },
-        { AttributeName: "GSI5PK", AttributeType: "S" },
-        { AttributeName: "GSI5SK", AttributeType: "S" },
-      ],
-      KeySchema: [
-        { AttributeName: "PK", KeyType: "HASH" },
-        { AttributeName: "SK", KeyType: "RANGE" },
-      ],
-      GlobalSecondaryIndexes: [
-        {
-          IndexName: "GSI1",
-          KeySchema: [
-            { AttributeName: "SK", KeyType: "HASH" },
-            { AttributeName: "PK", KeyType: "RANGE" },
-          ],
-          Projection: {
-            ProjectionType: "ALL",
+    .send(
+      new CreateTableCommand({
+        TableName: tableName,
+        AttributeDefinitions: [
+          { AttributeName: "PK", AttributeType: "S" },
+          { AttributeName: "SK", AttributeType: "S" },
+          { AttributeName: "GSI2PK", AttributeType: "S" },
+          { AttributeName: "GSI2SK", AttributeType: "S" },
+          { AttributeName: "GSI3PK", AttributeType: "S" },
+          { AttributeName: "GSI3SK", AttributeType: "S" },
+          { AttributeName: "GSI4PK", AttributeType: "S" },
+          { AttributeName: "GSI4SK", AttributeType: "S" },
+          { AttributeName: "GSI5PK", AttributeType: "S" },
+          { AttributeName: "GSI5SK", AttributeType: "S" },
+        ],
+        KeySchema: [
+          { AttributeName: "PK", KeyType: "HASH" },
+          { AttributeName: "SK", KeyType: "RANGE" },
+        ],
+        GlobalSecondaryIndexes: [
+          {
+            IndexName: "GSI1",
+            KeySchema: [
+              { AttributeName: "SK", KeyType: "HASH" },
+              { AttributeName: "PK", KeyType: "RANGE" },
+            ],
+            Projection: {
+              ProjectionType: "ALL",
+            },
           },
-        },
-        {
-          IndexName: "GSI2",
-          KeySchema: [
-            { AttributeName: "GSI2PK", KeyType: "HASH" },
-            { AttributeName: "GSI2SK", KeyType: "RANGE" },
-          ],
-          Projection: {
-            ProjectionType: "ALL",
+          {
+            IndexName: "GSI2",
+            KeySchema: [
+              { AttributeName: "GSI2PK", KeyType: "HASH" },
+              { AttributeName: "GSI2SK", KeyType: "RANGE" },
+            ],
+            Projection: {
+              ProjectionType: "ALL",
+            },
           },
-        },
-        {
-          IndexName: "GSI3",
-          KeySchema: [
-            { AttributeName: "GSI3PK", KeyType: "HASH" },
-            { AttributeName: "GSI3SK", KeyType: "RANGE" },
-          ],
-          Projection: {
-            ProjectionType: "ALL",
+          {
+            IndexName: "GSI3",
+            KeySchema: [
+              { AttributeName: "GSI3PK", KeyType: "HASH" },
+              { AttributeName: "GSI3SK", KeyType: "RANGE" },
+            ],
+            Projection: {
+              ProjectionType: "ALL",
+            },
           },
-        },
-        {
-          IndexName: "GSI4",
-          KeySchema: [
-            { AttributeName: "GSI4PK", KeyType: "HASH" },
-            { AttributeName: "GSI4SK", KeyType: "RANGE" },
-          ],
-          Projection: {
-            ProjectionType: "ALL",
+          {
+            IndexName: "GSI4",
+            KeySchema: [
+              { AttributeName: "GSI4PK", KeyType: "HASH" },
+              { AttributeName: "GSI4SK", KeyType: "RANGE" },
+            ],
+            Projection: {
+              ProjectionType: "ALL",
+            },
           },
-        },
-        {
-          IndexName: "GSI5",
-          KeySchema: [
-            { AttributeName: "GSI5PK", KeyType: "HASH" },
-            { AttributeName: "GSI5SK", KeyType: "RANGE" },
-          ],
-          Projection: {
-            ProjectionType: "ALL",
+          {
+            IndexName: "GSI5",
+            KeySchema: [
+              { AttributeName: "GSI5PK", KeyType: "HASH" },
+              { AttributeName: "GSI5SK", KeyType: "RANGE" },
+            ],
+            Projection: {
+              ProjectionType: "ALL",
+            },
           },
-        },
-      ],
-      BillingMode: "PAY_PER_REQUEST",
-    })
-    .promise()
+        ],
+        BillingMode: "PAY_PER_REQUEST",
+      })
+    )
     .catch((e: any) => {
       console.log("Failed to create table, exiting.", e)
       process.exit(1)
@@ -105,8 +109,7 @@ export const createTable = async () => {
 
 export const destroyTable = async (tableName: string) => {
   return ddb
-    .deleteTable({ TableName: tableName })
-    .promise()
+    .send(new DeleteTableCommand({ TableName: tableName }))
     .then(() => {})
     .catch((e) => {
       console.log("Failed to destroy table, exiting.", e)
@@ -118,12 +121,12 @@ export const getTableContents = async (
   tableName: string
 ): Promise<{ [key: string]: any }> => {
   const scan = async (ExclusiveStartKey?: any): Promise<any[]> => {
-    const { Items = [], LastEvaluatedKey } = await docClient
-      .scan({
+    const { Items = [], LastEvaluatedKey } = await docClient.send(
+      new ScanCommand({
         TableName: tableName,
         ExclusiveStartKey,
       })
-      .promise()
+    )
 
     if (LastEvaluatedKey) return [...Items, ...(await scan(LastEvaluatedKey))]
     return Items
@@ -167,19 +170,18 @@ export const createSandbox = async (client: Client): Promise<Sandbox> => {
             : i
         )
 
-        await client.documentClient
-          .batchWrite({
+        await client.documentClient.send(
+          new BatchWriteCommand({
             RequestItems: {
               [tableName]: items.map((i) => ({ PutRequest: { Item: i } })),
             },
           })
-          .promise()
+        )
       }
     },
     get: (pk: string, sk: string) =>
       client.documentClient
-        .get({ TableName: tableName, Key: { PK: pk, SK: sk } })
-        .promise()
+        .send(new GetCommand({ TableName: tableName, Key: { PK: pk, SK: sk } }))
         .then(({ Item }) => Item ?? null),
     diff: async (before) => {
       const snapshot = await getTableContents(tableName)
