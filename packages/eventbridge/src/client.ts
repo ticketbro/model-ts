@@ -1,18 +1,24 @@
 import { ModelInstance } from "@model-ts/core"
-import EventBridge, { ClientConfiguration } from "aws-sdk/clients/eventbridge"
+import {
+  EventBridgeClient,
+  EventBridgeClientConfig,
+  PutEventsCommand,
+  PutEventsResultEntry,
+} from "@aws-sdk/client-eventbridge"
 import { PublishError } from "./errors"
 
-export interface ClientProps extends ClientConfiguration {
+export interface ClientProps extends EventBridgeClientConfig {
   eventBusName: string
 }
 
 export class Client {
   eventBusName: string
-  eventBridgeClient: EventBridge
+  eventBridgeClient: EventBridgeClient
 
   constructor(options: ClientProps) {
-    this.eventBridgeClient = new EventBridge(options)
-    this.eventBusName = options.eventBusName
+    const { eventBusName, ...eventBridgeOptions } = options
+    this.eventBridgeClient = new EventBridgeClient(eventBridgeOptions)
+    this.eventBusName = eventBusName
   }
 
   async publish(
@@ -27,12 +33,12 @@ export class Client {
 
     const chunks = chunk(events, 10)
 
-    const entries: EventBridge.PutEventsResultEntry[] = []
+    const entries: PutEventsResultEntry[] = []
     let failedCount = 0
 
     for (const chunk of chunks) {
-      const { Entries, FailedEntryCount } = await this.eventBridgeClient
-        .putEvents({
+      const putEventCommandOutput = await this.eventBridgeClient.send(
+        new PutEventsCommand({
           Entries: chunk.map((event) => ({
             EventBusName: this.eventBusName,
             Source: event.source,
@@ -40,10 +46,10 @@ export class Client {
             Detail: JSON.stringify(event.encode()),
           })),
         })
-        .promise()
+      )
 
-      failedCount += FailedEntryCount ?? 0
-      entries.push(...(Entries ?? []))
+      failedCount += putEventCommandOutput?.FailedEntryCount ?? 0
+      entries.push(...(putEventCommandOutput?.Entries ?? []))
     }
 
     if (failedCount > 0) {
